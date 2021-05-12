@@ -1,15 +1,14 @@
 # georeferencing
 Codes used for georeferencing imagery, namely CAMBOT imagery associated with Operation IceBridge.
+_____
 
-
-INITAL SETUP
+### INITAL SETUP
 Before you begin, ensure you have at least IDL version 8.1 installed, as well as exiftool installed.
 
-Program set overview: CAMBOT jpeg files files are combined with mounting bias data, lens/camera data, aircraft and (if applicable) DEM/terrain data to generate georeferenced and orthorectified GeoTIFFs for each JPEG image provided. 
+Program set overview: CAMBOT jpeg files files are combined with mounting bias data, lens/camera data, aircraft and (if applicable) DEM/terrain data to generate georeferenced and orthorectified GeoTIFFs for each JPEG image provided.  
+_____
 
-
-
-INITIAL PREP
+### INITIAL PREP
 Before the main georeferencing code can be run, there are a number of things that need to be in place: 
 
 - Paths should be updated to reflect where data is coming from/going to. I tried to limit where this needed to happen, passing values through function calls where possible. Here are the programs/functions that contain paths that need to be set:
@@ -29,10 +28,10 @@ Before the main georeferencing code can be run, there are a number of things tha
 
 - Lens correction files have been already generated for the primary/backup CAMBOT camera setups, though these will have to be redone if camera setups change.
 
-- Finally, before the main georeferencing program is run, folders containing the JPEG files to be processed must be filtered such that all images in each folder are included in the timestamps listed in the processing database. If this is not done, a "missing terrain" will occur when initial processing is started.
+- Finally, before the main georeferencing program is run, folders containing the JPEG files to be processed must be filtered such that all images in each folder are included in the timestamps listed in the processing database. If this is not done, a "missing terrain" will occur when initial processing is started.  
+_____
 
-
-GEOREFERENCING
+### GEOREFERENCING
 The main program that manages the georeferencing is "cambot_georeferencing_v5p1.pro". It is from this program that the list of jpeg files to be georeferenced are generated and where the high-level georeferencing functions are called. There are two "types" of georeferencing performed on images: "land ice" which involves terrain, from a DEM or other source and "sea ice", which simply projects the image onto a flat plain for georeferencing. This main program has the option of processing multiple images in parallel, through the use of the "SPLIT_FOR" code set created by R. da Silva in 2010. 
 
 In this main function, the data from the ancillary file is read in, containing all aircraft info we need. A list of JPEG filenames is then created, filtered from 2 Hz -> 1Hz, already processed files are removed, and terrain types assigned to each filename. Now that we have a filtered and prepped list of filenames to be processed, we read-in the metadata for each image. 
@@ -42,4 +41,3 @@ Once these pre-processing steps are complete, filenames, terrain info and metada
 Inside the top-level georeferencing functions ("cambot_geo_function_landice_v6p1.pro" & "cambot_geo_function_seaice_v4p0.pro"), the current JPEG image is read in & oriented correctly. Ancillary data for this image is then found and the correct mounting biases, offsets and lens values selected. In the land ice code, DEM data is then read-in for an area around this image and filtered to remove "small" data holes. The prepped image and all associated data are then sent to the actual geolocation code ("geolocate_image_landice_v7p1.pro" & "geolocate_image_seaice_v7p0.pro") where each image pixel is given a latitude, longitude and elevation; the output is a cloud of disparate points, not an image array. Based upon aircraft altitude above the surface and original image size, a georeferenced grid is created to grid the image to. Using the pixel locations cloud from above, each pixel value is added to the grid. Once everything is added, duplicate pixels are averaged and data holes are interpolated across. The final image is written to a TIFF file, with updated geotiff and metadata information applied as well.
 
 If there are any issues encountered during the georeferencing process, such as terrain data having too large a hole to interpolate across or aircraft data missing, a text file containing the error is output instead of the GeoTIFF file.
-===========================================================================================================
