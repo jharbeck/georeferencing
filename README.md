@@ -1,18 +1,15 @@
 # georeferencing
 Codes used for georeferencing imagery, namely CAMBOT imagery associated with Operation IceBridge.
 
------------------------------------------------------------------------------------------------------------
-                                                INITAL SETUP
------------------------------------------------------------------------------------------------------------
+
+INITAL SETUP
 Before you begin, ensure you have at least IDL version 8.1 installed, as well as exiftool installed.
 
 Program set overview: CAMBOT jpeg files files are combined with mounting bias data, lens/camera data, aircraft and (if applicable) DEM/terrain data to generate georeferenced and orthorectified GeoTIFFs for each JPEG image provided. 
-===========================================================================================================
 
 
------------------------------------------------------------------------------------------------------------
-                                                INITIAL PREP
------------------------------------------------------------------------------------------------------------
+
+INITIAL PREP
 Before the main georeferencing code can be run, there are a number of things that need to be in place: 
 
 - Paths should be updated to reflect where data is coming from/going to. I tried to limit where this needed to happen, passing values through function calls where possible. Here are the programs/functions that contain paths that need to be set:
@@ -33,12 +30,9 @@ Before the main georeferencing code can be run, there are a number of things tha
 - Lens correction files have been already generated for the primary/backup CAMBOT camera setups, though these will have to be redone if camera setups change.
 
 - Finally, before the main georeferencing program is run, folders containing the JPEG files to be processed must be filtered such that all images in each folder are included in the timestamps listed in the processing database. If this is not done, a "missing terrain" will occur when initial processing is started.
-===========================================================================================================
 
 
------------------------------------------------------------------------------------------------------------
-                                              GEOREFERENCING
------------------------------------------------------------------------------------------------------------
+GEOREFERENCING
 The main program that manages the georeferencing is "cambot_georeferencing_v5p1.pro". It is from this program that the list of jpeg files to be georeferenced are generated and where the high-level georeferencing functions are called. There are two "types" of georeferencing performed on images: "land ice" which involves terrain, from a DEM or other source and "sea ice", which simply projects the image onto a flat plain for georeferencing. This main program has the option of processing multiple images in parallel, through the use of the "SPLIT_FOR" code set created by R. da Silva in 2010. 
 
 In this main function, the data from the ancillary file is read in, containing all aircraft info we need. A list of JPEG filenames is then created, filtered from 2 Hz -> 1Hz, already processed files are removed, and terrain types assigned to each filename. Now that we have a filtered and prepped list of filenames to be processed, we read-in the metadata for each image. 
